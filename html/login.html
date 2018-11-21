@@ -1,0 +1,26 @@
+<div id="loginDialog" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Log in <small><span ng-show="ctrl.loginMsg" ng-bind="ctrl.loginMsg" class="left text-left alert alert-danger" role="alert"/></small></h4>
+			</div>
+			<form name="loginForm" class="ng-pristine ng-untouched ng-valid" ng-submit="ctrl.validateCredentials()">
+			<div class="modal-body">
+				<div class="panel panel-default">
+					<div class="form-group panel-body">
+					<label for="login">E-mail</label>
+					<input id="login" type="email" ng-model="ctrl.login" class="form-control" required="" placeholder="user@domain" ng-change="ctrl.loginMsg=''"/>
+					<label for="password">Password</label>
+					<input id="password" type="password" ng-model="ctrl.password" class="form-control" placeholder="password" ng-change="ctrl.loginMsg=''"/>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-primary glyphicon glyphicon-log-in" ng-disabled="loginForm.$invalid"/>
+				<button type="button" class="btn btn-default glyphicon glyphicon-remove" data-dismiss="modal"/>
+			</div>
+			</form>
+		</div>
+	</div>
+</div>

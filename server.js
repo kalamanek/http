@@ -9,18 +9,45 @@ var ObjectId = mongodb.ObjectId;
 
 var debugLog = true; // turning on logging to the console
 
-var db = null;
+const listeningPort = 8888;
+const dbUrl = "mongodb://localhost:27017";
+const dbName = "pai";
 
-mongo.connect("mongodb://localhost:27017", { useNewUrlParser: true }, function(err, conn) {
+var server = null;
+var db = null;
+var persons = null;
+
+mongo.connect(dbUrl, { useNewUrlParser: true }, function(err, conn) {
 	
 	if(err) {
-			console.log(err);
-			return;
+			console.log("Connection to database failed");
+			process.exit();
 	}
 
-	db = conn.db("pai");
-	console.log("Connection to pai established");
+	console.log("Connection to database established");
 	
+	db = conn.db(dbName);
+	persons = db.collection("persons");
+	persons.find().count(function(err, n) {
+		if(n == 0) {
+			console.log("No persons, initializing by sample data");
+			try {
+                var examplePersons = JSON.parse(fs.readFileSync("persons.json", 'utf8'));
+                persons.insertMany(examplePersons);
+            } catch(ex) {
+				console.log("Error during initialization");
+				process.exit();
+			}
+		}
+	});
+	
+	try {
+		server.listen(listeningPort);
+	} catch(ex) {
+		console.log("Port " + listeningPort + " cannot be used");
+		process.exit();
+	}
+	console.log("HTTP server is listening on the port " + listeningPort);
 });
 
 
@@ -51,24 +78,7 @@ function serveErrorJson(rep, error, message) {
 	rep.end();
 }
 
-
-var listeningPort = 8888;
-
-/*
-var person = [
-	{ "123", "firstName": "Mariusz", "lastName": "Jarocki", amount: 500 },
-	{ "firstName": "Jack", "lastName": "Daniels", amount: 129 },
-	{ "firstName": "Jim", "lastName": "Beam", amount: 59 }
-];
-*/
-
-var person = {
-	"123": { "firstName": "Mariusz", "lastName": "Jarocki", amount: 500 },
-	"456": { "firstName": "Jack", "lastName": "Daniels", amount: 129 },
-	"789": { "firstName": "Jim", "lastName": "Beam", amount: 59 }
-};
-
-http.createServer().on('request', function (req, rep) {
+server = http.createServer().on('request', function (req, rep) {
 	
 	if(debugLog) console.log('HTTP request: ' + req.method + " " + req.url);
 	
@@ -80,9 +90,9 @@ http.createServer().on('request', function (req, rep) {
 			serveFile(rep, 'img/favicon.ico', 200, '');
 			break;
 		case '/persons':
-			db.collection("persons").find().toArray(function(err, docs) {
+			persons.find().project({ firstName: true, lastName: true }).toArray(function(err, docs) {
 				if(err) {
-					serveErrorJson(rep, 404, 'Not found');
+					serveErrorJson(rep, 404, "Persons not found");
 					return;
 				}
 				rep.writeHead(200, { "Content-type": "application/json" });
@@ -90,33 +100,96 @@ http.createServer().on('request', function (req, rep) {
 				rep.end();
 			})
 			break;			
+		case '/addPerson':
+			switch(req.method) {
+				case "POST":
+					var content = "";
+					req.setEncoding("utf8");
+					req.on("data", function(data) {
+						content += data;
+					}).on("end", function() {
+						var obj = {};
+						try {
+							obj = JSON.parse(content);
+							persons.insertOne(obj, function(err, insResult) {
+								if(err) {
+									serverErrorJson(rep, 406, "Insert failed");
+									return;
+								}
+								rep.writeHead(200, { "Content-type": "application/json" });
+								rep.end(JSON.stringify(insResult.ops[0]));								
+							});
+						} catch(ex) {
+							serveErrorJson(rep, 406, "Invalid JSON");
+							return;
+						}
+					});
+					break;
+				default:
+					serveErrorJson(rep, 405, "Method " + req.method + " not allowed");
+			}
+			break;
 		default:
 			if(/^\/(html|css|js|fonts|img)\//.test(req.url)) {
 				
 				var fileName = path.normalize('./' + req.url)
 				serveFile(rep, fileName, 200, '');
 				
-			} else if(/\/person\//.test(req.url)) {
+			} else if(/^\/persons\//.test(req.url)) {
+
+				var a = req.url.split("/");
+
+				if(a[2] == "?") {
+					persons.countDocuments(function(err, n) {
+                        rep.writeHead(200, {"Content-type": "application/json"});
+                        rep.write(JSON.stringify({count: n}));
+                        rep.end();
+					});
+					return;
+				}
+
+				var nSkip = 0;
+				var nLimit = 0;
+				if(a.length > 3) {
+					try {
+						nSkip = parseInt(a[2]);
+						nLimit = parseInt(a[3]);
+					} catch(ex) {
+						serveErrorJson(rep, 405, "Invalid parameters for /persons");
+						return;
+					}
+				}
+                persons.find().skip(nSkip).limit(nLimit).toArray(function (err, docs) {
+                    if (err) {
+                        serveErrorJson(rep, 404, "Persons not found");
+                        return;
+                    }
+                    rep.writeHead(200, {"Content-type": "application/json"});
+                    rep.write(JSON.stringify(docs));
+                    rep.end();
+                })
+                break;
+
+            } else if(/\/person\//.test(req.url)) {
 				
 				var a = req.url.split("/");
 				var id;
 				try {
 					id = ObjectId(a[2]);
 				} catch(ex) {
-					serveErrorJson(rep, 405, 'Not acceptable');
+					serveErrorJson(rep, 406, "Invalid id " + a[2]);
 					return;
 				}
 				
 				switch(req.method) {
 					case "GET":
-						db.collection("persons").findOne({ _id: id }, function(err, doc) {
+						persons.findOne({ _id: id }, function(err, doc) {
 							if(err || !doc) {
-								serveErrorJson(rep, 404, 'Not found');
+								serveErrorJson(rep, 404, "Object " + a[2] + " not found");
 								return;
 							}
 							rep.writeHead(200, { "Content-type": "application/json" });
-							rep.write(JSON.stringify(doc));
-							rep.end();
+							rep.end(JSON.stringify(doc));
 						});
 						break;
 					case "POST":
@@ -129,31 +202,68 @@ http.createServer().on('request', function (req, rep) {
 							try {
 								obj = JSON.parse(content);
 								if(!("amount" in obj) || typeof(obj.amount) != "number") {
-									serveErrorJson(rep, 406, 'Not acceptable');
+									serveErrorJson(rep, 406, "Invalid data");
 									return;
 								}
 							} catch(ex) {
-								serveErrorJson(rep, 406, 'Not acceptable');
+								serveErrorJson(rep, 406, "Invalid JSON");
 								return;
 							}
-							db.collection("persons").update(
-									{ "_id" : id },
-									{$inc:	{	"amount":obj.amount	}	}
-								);
-								
-							db.collection("persons").find().toArray(function(err, docs) {
-								if(err) {
-									serveErrorJson(rep, 404, 'Not found');
-									return;
+							persons.findOneAndUpdate({ _id: id }, { $inc: { amount: obj.amount } }, { returnOriginal: false }, function(err, updStatus) {
+								if(updStatus.ok) {
+									rep.writeHead(200, { "Content-type": "application/json" });
+									rep.end(JSON.stringify(updStatus.value));
+								} else {
+									serverErrorJson(rep, 406, "Update failed");
 								}
-								rep.writeHead(200, { "Content-type": "application/json" });
-								rep.write(JSON.stringify(docs));
-								rep.end();
-							})
+							});
 						});
 						break;
 					default:
-						serveErrorJson(rep, 405, 'Method not allowed');
+						serveErrorJson(rep, 405, "Method " + req.method + " not allowed");
+				}
+								
+			}else if(/\/personedit\//.test(req.url)) {
+				
+				var a = req.url.split("/");
+				var id;
+				try {
+					id = ObjectId(a[2]);
+				} catch(ex) {
+					serveErrorJson(rep, 406, "Invalid id " + a[2]);
+					return;
+				}
+				
+				switch(req.method) {
+					case "POST":
+						var content = "";
+						req.setEncoding("utf8");
+						req.on("data", function(data) {
+							content += data;
+						}).on("end", function() {
+							var obj = {};
+							try {
+								obj = JSON.parse(content);
+								if(!("amount" in obj) || typeof(obj.amount) != "number") {
+									serveErrorJson(rep, 406, "Invalid data");
+									return;
+								}
+							} catch(ex) {
+								serveErrorJson(rep, 406, "Invalid JSON");
+								return;
+							}
+							persons.findOneAndUpdate({ _id: id }, { $set: { amount: obj.amount , firstName : obj.firstName , lastName : obj.lastName} }, { returnOriginal: false }, function(err, updStatus) {
+								if(updStatus.ok) {
+									rep.writeHead(200, { "Content-type": "application/json" });
+									rep.end(JSON.stringify(updStatus.value));
+								} else {
+									serverErrorJson(rep, 406, "Update failed");
+								}
+							});
+						});
+						break;
+					default:
+						serveErrorJson(rep, 405, "Method " + req.method + " not allowed");
 				}
 								
 			} else {	
@@ -161,4 +271,4 @@ http.createServer().on('request', function (req, rep) {
 			}
 		}
 	}
-).listen(listeningPort);
+);
