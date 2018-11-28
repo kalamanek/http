@@ -16,13 +16,12 @@
 					<input id="firstName" type="text" ng-model="ctrl.person.firstName" class="form-control" required="" placeholder="First name"/>
 					<label for="lastName">Last name</label>
 					<input id="lastName" type="text" ng-model="ctrl.person.lastName" class="form-control" required="" placeholder="Last name"/>
-					<label for="amount">amount</label>
-					<input id="amount" type="number" ng-model="ctrl.person.amount" class="form-control" required="" placeholder="amout"/>
-					</div>
+					<label for="lastName">Amount</label>
+					<input id="lastName" type="number" ng-model="ctrl.person.amount" class="form-control" required="" placeholder="Amount"/>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="submit" class="btn btn-primary glyphicon glyphicon-ok" ng-click="ctrl.editForm()" ng-disabled="editForm.$invalid"/>
+				<button type="submit" class="btn btn-primary glyphicon glyphicon-ok" ng-disabled="editForm.$invalid"/>
 				<button type="button" class="btn btn-danger glyphicon glyphicon-trash" ng-click="ctrl.confirmRemove()" ng-disabled="!ctrl.person._id"/>
 				<button type="button" class="btn btn-default glyphicon glyphicon-remove" data-dismiss="modal"/>
 			</div>

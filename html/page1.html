@@ -21,7 +21,7 @@
 <div class="container">
 
     <div style="position: fixed; top: 0; left: 50%; transform: translateX(-50%); text-align: center; width: 500px; max-width=80%; z-index: 10000">
-        <uib-alert class="animated" type="{{ctrl.alertType}}" close="ctrl.closeAlert()" dismiss-on-timeout="2000" ng-if="ctrl.alertMsg">{{ctrl.alertMsg}}</uib-alert>
+        <uib-alert class="animated" type="{{ctrl.alert.type}}" close="ctrl.closeAlert()" dismiss-on-timeout="2000" ng-if="ctrl.alert.text">{{ctrl.alert.text}}</uib-alert>
     </div>
 
     <div class="page-header">

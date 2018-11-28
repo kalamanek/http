@@ -4,8 +4,7 @@ app.controller("Ctrl1", [ "$http", function($http) {
 
     var ctrl = this;
 
-    ctrl.alertType = "info";
-    ctrl.alert = "";
+    ctrl.alert = { text: "" };
     ctrl.person = {};
     ctrl.personToEdit = {};
     ctrl.transfer = { "amount": 0 };
@@ -18,8 +17,7 @@ app.controller("Ctrl1", [ "$http", function($http) {
             ctrl.selectChanged();
         },
         function(err) {
-            ctrl.alertType = "warning";
-            ctrl.alertMsg = "Cannot retrieve data";
+            ctrl.alert = { type: "warning", text: "Cannot retrieve data" };
         }
     );
 
@@ -29,23 +27,20 @@ app.controller("Ctrl1", [ "$http", function($http) {
                 ctrl.personToEdit = rep.data;
             },
             function(err) {
-                ctrl.alertType = "warning";
-                ctrl.alertMsg = "Cannot retrieve data";
+                ctrl.alert = { type: "warning", text: "Cannot retrieve data" };
             }
         );
-    }
+    };
 
     ctrl.doTransfer = function() {
-        $http.post("/person/" + ctrl.person._id, ctrl.transfer).then(
+        $http.post("/transfer/" + ctrl.person._id, ctrl.transfer).then(
             function(rep) {
                 ctrl.personToEdit = rep.data;
                 ctrl.transfer.amount = 0;
-                ctrl.alertInfo = "info";
-                ctrl.alertMsg = "Transfer successful";
+                ctrl.alert = { type: "info", text: "Transfer successful" };
             },
             function(err) {
-                ctrl.alertType = "warning";
-                ctrl.alertMsg = "Transfer failed";
+                ctrl.alert = { type: "warning", text: "Transfer failed" };
             }
         );
     };
@@ -55,7 +50,7 @@ app.controller("Ctrl1", [ "$http", function($http) {
     };
 
     ctrl.closeAlert = function() {
-        ctrl.alertMsg = "";
+        ctrl.alert = { text: "" };
     };
 
 }]);
