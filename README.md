@@ -1,1 +1,1 @@
-# http
+# stronka

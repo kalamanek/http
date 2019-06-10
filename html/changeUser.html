@@ -1,0 +1,45 @@
+<div id="changeUser" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">change user settings
+                    <small><span ng-show="ctrl.registerMsg" ng-bind="ctrl.registerMsg"
+                                 class="left text-left alert alert-danger" role="alert"/></small>
+                </h4>
+            </div>
+
+            <form name="registerForm" class="ng-pristine ng-untouched ng-valid" ng-submit="ctrl.pushUser()">
+                <div class="modal-body">
+                    <div class="panel panel-default">
+                        <div class="form-group panel-body">
+
+                            <label for="fname">First name</label>
+                            <input id="fname" type="text" ng-model="ctrl.userChange.firstName" class="form-control" required="" pattern=".{1,20}"
+                                   placeholder="John"/>
+
+                            <label for="lname">Last name</label>
+                            <input id="lname" type="text" ng-model="ctrl.userChange.lastName" class="form-control" required="" pattern=".{1,20}"
+                                   placeholder="Smith" />
+
+                            <label for="email">E-mail</label>
+                            <input id="email" type="email" ng-model="ctrl.userChange.email" class="form-control" />
+
+                            <label for="pass">Password</label>
+                            <input id="pass" type="password" ng-model="ctrl.userChange.password" class="form-control" required="" pattern=".{1,20}"
+                                   placeholder="password" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary glyphicon glyphicon-log-in" 
+                            ng-disabled="registerForm.$invalid"/>
+                    <button type="button" class="btn btn-default glyphicon glyphicon-remove" data-dismiss="modal"/>
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+
+</div>

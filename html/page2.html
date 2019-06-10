@@ -1,55 +1,32 @@
-<!DOCTYPE html>
-<html ng-app="app1">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-    <title>Page 2</title>
-
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/index.css">
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
-</head>
-
-<body ng-controller="Ctrl2 as ctrl">
-
-<div class="container">
-
-	<ng-include src = "'/html/editPerson.html'"></ng-include>
-	
-    <button class="btn btn-primary" ng-click="ctrl.prev()" ng-disabled="ctrl.nSkip < 10">&lt;</button>
-    <span ng-bind="ctrl.nSkip"></span> / <span ng-bind="ctrl.count"></span>
-    <button class="btn btn-primary" ng-click="ctrl.next()" ng-disabled="ctrl.nSkip + 10 >= ctrl.count">&gt;</button>
-
-    <table class="table">
+<div class="row col-xs-12">
+  <button ng-click="ctrl.propertyName = null; ctrl.reverse = false">Set to unsorted</button>
+    <table class="table table-hover">
         <tbody>
-        <tr><th>_id</th><th>firstName</th><th>lastName</th><th>amount</th></tr>
-        <tr ng-repeat="person in ctrl.persons" ng-click = "ctrl.editPerson(person._id)">
-            <td ng-bind="person._id"></td>
-            <td ng-bind="person.firstName"></td>
-            <td ng-bind="person.lastName"></td>
-            <td ng-bind="person.amount"></td>
-        </tr>
         <tr>
-            <td><button class="btn btn-default" ng-click="ctrl.insert()">+</button></td>
-            <td><input type="text" class="form-control" ng-model="ctrl.person.firstName"/></td>
-            <td><input type="text" class="form-control" ng-model="ctrl.person.lastName"/></td>
-            <td><input type="number" class="form-control" ng-model="ctrl.person.amount"/></td>
+            <th>
+		<button ng-click="ctrl.sortBy('name')">Name</button>
+ 		<span class="sortorder" ng-show="propertyName === 'name'" ng-class="{reverse: reverse}"></span>
+	    </th>
+            <th>Info</th>
+            <th><span class="glyphicon glyphicon-ok"></span></th>
+            <th><span class="glyphicon glyphicon-remove"></span></th>
+        </tr>
+        <tr ng-repeat="group in ctrl.allGroups | orderBy:ctrl.propertyName:ctrl.reverse">
+            <td ng-bind="group.name" style="width: 55%;"></td>
+            <td ng-bind="group.info" style="width: 55%;"></td>
+            <td style="width: 4%;">
+                <button class="btn btn-primary" ng-click="ctrl.groupUserAdd(group._id , group.name)"
+                        ng-show="!ctrl.checkIfInGroup(group._id)"><span class="glyphicon glyphicon-ok"></span>
+                </button>
+            </td>
+            <td style="width: 4%;">
+                <button class="btn btn-primary" ng-click="ctrl.groupUserRemove(group._id)"
+                        ng-show="ctrl.checkIfInGroup(group._id)"><span class="glyphicon glyphicon-remove"></span>
+                </button>
+            </td>
         </tr>
         </tbody>
     </table>
 
+
 </div>
-
-    <script src="/js/angular.min.js"></script>
-    <script src="/js/angular-animate.min.js"></script>
-    <script src="/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/js/app1.js"></script>
-    <script src="/js/ctrl2.js"></script>
-
-</body></html>

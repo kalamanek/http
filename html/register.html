@@ -1,0 +1,46 @@
+<div id="registerDialog" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Register
+                    <small><span ng-show="ctrl.registerMsg" ng-bind="ctrl.registerMsg"
+                                 class="left text-left alert alert-danger" role="alert"/></small>
+                </h4>
+            </div>
+
+            <form name="registerForm" class="ng-pristine ng-untouched ng-valid" ng-submit="ctrl.validateRegisterCredentials()">
+                <div class="modal-body">
+                    <div class="panel panel-default">
+                        <div class="form-group panel-body">
+
+                            <label for="regFistName">First name</label>
+                            <input id="regFistName" type="text" ng-model="ctrl.registerFirstName" class="form-control" required="" pattern=".{2,20}"
+                                   placeholder="John" ng-change="ctrl.registerMsg=''"/>
+
+                            <label for="regLastName">Last name</label>
+                            <input id="regLastName" type="text" ng-model="ctrl.registerLastName" class="form-control" required="" pattern=".{2,20}"
+                                   placeholder="Smith" ng-change="ctrl.registerMsg=''"/>
+
+                            <label for="regLogin">E-mail</label>
+                            <input id="regLogin" type="email" ng-model="ctrl.registerEmail" class="form-control" required=""
+                                   placeholder="user@domain" ng-change="ctrl.registerMsg=''"/>
+
+                            <label for="regPassword">Password</label>
+                            <input id="regPassword" type="password" ng-model="ctrl.registerPassword" class="form-control" required="" pattern=".{2,20}"
+                                   placeholder="password" ng-change="ctrl.registerMsg=''"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary glyphicon glyphicon-log-in"
+                            ng-disabled="registerForm.$invalid"/>
+                    <button type="button" class="btn btn-default glyphicon glyphicon-remove" data-dismiss="modal"/>
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+
+</div>

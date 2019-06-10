@@ -1,0 +1,50 @@
+
+    <ng-include src="'html/addGroup.html'"></ng-include>
+<div class="row">
+
+    <div class="col-sm-9">
+        <h3 ng-if="ctrl.currentGroup.name">{{ctrl.currentGroup.name}}</h3>
+        <div style="height: 400px; overflow: auto;" id = "scrollElement">
+            <table class="table table-hover"id ="table">
+                <tbody>
+				<tr>
+					<th>Name</th>
+					<th>last name</th>
+					<th><span class="glyphicon glyphicon-remove"></span></th>
+				</tr>
+                <tr ng-repeat="user in ctrl.groupsUser">
+                    <td ng-bind="user.firstName" id="firstname"></td>
+                    <td ng-bind="user.lastName" id="lastName"></td>
+					<td style="width: 4%;">
+						<button class="btn btn-primary" ng-click="ctrl.removeUserFromGroup(user._id)">
+						<span class="glyphicon glyphicon-remove"></span>
+						</button>
+					</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div style="height: 500px; overflow: auto;">
+            <table class="table table-hover">
+                <tbody>
+					<tr ng-repeat="group in ctrl.allGroups" >
+						<td ng-bind="group.name" ng-click="ctrl.getGroupUsers(group._id)"></td>
+
+						<td style="width: 4%;">
+							<button class="btn btn-primary" ng-click="ctrl.removeGroup(group._id)" ><span class="glyphicon glyphicon-remove"></span>
+							</button>
+						</td>
+					</tr>
+				</tbody>
+				
+			<td style="width: 4%;">
+				<button class="btn btn-primary" data-toggle="modal" data-target="#addGroup">
+					<span class="glyphicon glyphicon-plus"></span>
+				</button>
+			</td>
+            </table>
+        </div>
+    </div>	
+</div>

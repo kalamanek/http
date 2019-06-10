@@ -1,0 +1,29 @@
+<div id="addGroup" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">add group
+                    <small><span ng-show="ctrl.addGroupMsg" ng-bind="ctrl.addGroupMsg" class="left text-left alert alert-danger" role="alert"/></small>
+                </h4>
+            </div>
+            <form name="group" class="ng-pristine ng-untouched ng-valid" ng-submit="ctrl.validateCredentials()">
+                <div class="modal-body">
+                    <div class="panel panel-default">
+                        <div class="form-group panel-body">
+                            <label for="name">name</label>
+                            <input id="group name" ng-model="ctrl.addGroup.name"  required="required" />
+                            <label for="info">info</label>
+                            <input id="group info" ng-model="ctrl.addGroup.info" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary glyphicon glyphicon-ok" ng-click="ctrl.addGroupModal()" ng-disabled="group.$invalid"/>
+                    <button type="button" class="btn btn-default glyphicon glyphicon-remove" data-dismiss="modal" ng-click="ctrl.addGroupMsg = null"/>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
